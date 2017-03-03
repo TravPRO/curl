@@ -32,6 +32,7 @@ class Builder {
         'containsFile'          => false,
         'debugFile'             => '',
         'saveFile'              => '',
+        'KEYHEADER'				=> '',
     );
 
 
@@ -44,6 +45,11 @@ class Builder {
     public function to($url)
     {
         return $this->withCurlOption( 'URL', $url );
+    }
+    
+    public function withSecretKey($secret_key)
+    {
+        return $this->withPackageOption( 'KEYHEADER', $secret_key );
     }
 
     /**
@@ -186,10 +192,10 @@ class Builder {
         $this->curlOptions[ 'HTTPHEADER' ] = array_merge(
             $this->curlOptions[ 'HTTPHEADER' ], $headers
         );
-
+        
         return $this;
     }
-
+    
     /**
      * Add a content type HTTP header to the request
      *
@@ -347,6 +353,9 @@ class Builder {
         $this->curlObject = curl_init();
         $options = $this->forgeOptions();
         curl_setopt_array( $this->curlObject, $options );
+        
+        $secret_key = $this->packageOptions['KEYHEADER'];
+		curl_setopt($this->curlObject,CURLOPT_HTTPHEADER,array('key: '.$secret_key.''));
 
         // Send the request
         $response = curl_exec( $this->curlObject );
